@@ -1,17 +1,9 @@
 
-zavi <- read.csv("zavi.csv")
+library(ggplot2)
 
-zavi$const <- 1
+sampleData <- read.csv("sampleData.csv")
 
-ggplot(zavi, aes(const, Signal, label = Name)) +
-  ylim(0, 100) +
-  xlim (0.5, 1.5) +
-  geom_sina(maxwidth = 0.5,
-            jitter_y = FALSE,
-            seed = 456,
-            shape = 21, size = 12, color = "white", fill = "#606FAF", stroke = 1.05) +
-  theme(panel.background = element_rect(fill = "white", color = "white"))
-
+sampleData$const <- 1
 
 
 
@@ -44,7 +36,7 @@ testdata <- matrix(data = c(10,1,
                             70,381), byrow = TRUE, ncol = 2, nrow = 7)
 
 testdata <- as.data.frame(testdata)
-colnames(testdata) <- c("signal", "const")
+colnames(testdata) <- c("average", "const")
 
 testdata[1,2] <- -2.3
 testdata[2,2] <- 0
@@ -55,7 +47,7 @@ testdata$name <- makeLabels(dim(testdata)[1])
 # Easy solution would be to specify position_jitter in both geom_text and geom_jitter with the same seed.
 
 
-testplot <- ggplot(testdata, aes(const, signal, label = name)) +
+testplot <- ggplot(testdata, aes(const, average, label = name)) +
   ylim(0, 100) +
   xlim(1, 759) +
   geom_point(shape = 21, size = 3.3, color = "white", fill = "#606FAF", stroke = 0.2, position = position_jitter(width = 0.2, height = 0.2, seed = 42)) +
@@ -69,6 +61,11 @@ testplot <- ggplot(testdata, aes(const, signal, label = name)) +
         panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
         panel.grid.major.x = element_blank()) +
   geom_text(color = "white", fontface = "bold", size = 1.1, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
+
+
+
+
+
 
 
 
@@ -146,10 +143,10 @@ plotHeight <- function(nominalPlotWidth) {
 }
 
 ## This fun needs to have pointSize as an input!
-getYBins <- function(nominalPlotWidth) {
+getYBins <- function(nominalPlotWidth, pointSize) {
   height <- plotHeight(nominalPlotWidth)
-  maxBins <- floor(height*0.043)
-  bins <- seq(from = 0, to = 100, by = ceiling(100/maxBins))
+  maxBins <- floor(height*0.043*3.3/pointSize)
+  bins <- seq(from = 0, to = 100, by = 100/maxBins)
   bins
 }
 
@@ -165,7 +162,7 @@ binYValues <- function(yValues, bins) {
 }
 
 
-zavi_binned <- binYValues(zavi$Signal, getYBins(900))
+sampleData_binned <- binYValues(sampleData$average, getYBins(900))
 
 
 getXsubset <- function(xValues, points, side = "left") {
@@ -230,30 +227,31 @@ windsorize <- function(x, minVal = 0, maxVal = 100) {
 }
 
 
-x <- zavi$Signal
+x <- sampleData$average
 
 x <- rnorm(500, 50, 19)
 x <- windsorize(x)
 x <- floor(x)
 
 #Input data needed
+# Start Final Run From HERE!!!!!
 
-talentSignal <- zavi$Signal
+
 candidateInitals <- makeLabels(length(x))
-pointSize <- 3.1
+pointSize <- 1.65
 width <- 900
 
 #Get the Y bins that the Y values will be mapped to
 
-availableYValues <- getYBins(width)
+availableYValues <- getYBins(width, pointSize)
 
-#Assign the talentSignal to the Y bins
+#Assign the talentaverage to the Y bins
 
-talentSignalBinned <- binYValues(talentSignal, availableYValues)
+talentaverageBinned <- binYValues(x, availableYValues)
 
 availableXValues <- makeXValues(pointSize = pointSize, nominalPlotWidth = width)
 
-finalOut <- assignXValues(talentSignalBinned, availableXValues)
+finalOut <- assignXValues(talentaverageBinned, availableXValues)
 
 finalOut$labels <- makeLabels(dim(finalOut)[1])
 finalOut$labels <- rep("", dim(finalOut)[1])
@@ -283,7 +281,7 @@ geom_text(color = "white", fontface = "bold", size = 0.9, position = position_ji
 outputWidth <- width
 outputHeight <- outputWidth*(1+5^(1/2))/2.5
 
-ggsave("testy_plot_rescale_rand9.png",
+ggsave("delme2.png",
        testplot,
        width = outputWidth,
        height = outputHeight,
