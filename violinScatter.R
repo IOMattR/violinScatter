@@ -29,23 +29,31 @@ getPlotDimensions <- function(nominalPlotWidth, pointSize) {
 getXValues <- function(plotDimensions) {
   midPointRowOne <- floor(plotDimensions$effectivePlotWidthPx / 2) -
     plotDimensions$alternateRowOffsetPx
-  maxPoints <- floor(midPointRowOne/plotDimensions$pointXSpacingPx)
-  leftPoints <- rep(NA, maxPoints)
-  rightPoints <- rep(NA, maxPoints)
+  midPointRowTwo <- floor(plotDimensions$effectivePlotWidthPx / 2) +
+    plotDimensions$alternateRowOffsetPx
+  maxPoints <- floor(midPointRowOne / plotDimensions$pointXSpacingPx)
+  leftPointsRowOne <- rep(NA, maxPoints)
+  rightPointsRowOne <- rep(NA, maxPoints)
+  leftPointsRowTwo <- rep(NA, maxPoints)
+  rightPointsRowTwo <- rep(NA, maxPoints)
   allPointsRowOne <- rep(NA, maxPoints * 2) + 1
   allPointsRowOne[1] <- midPointRowOne
+  allPointsRowTwo <- rep(NA, maxPoints * 2) + 1
+  allPointsRowTwo[1] <- midPointRowTwo
 
   for(i in 1:maxPoints) {
-    leftPoints[i] <- midPointRowOne - i * plotDimensions$pointXSpacingPx
-    rightPoints[i] <- midPointRowOne + i * plotDimensions$pointXSpacingPx
+    leftPointsRowOne[i] <- midPointRowOne + i * plotDimensions$pointXSpacingPx
+    rightPointsRowOne[i] <- midPointRowOne - i * plotDimensions$pointXSpacingPx
+    leftPointsRowTwo[i] <- midPointRowTwo - i * plotDimensions$pointXSpacingPx
+    rightPointsRowTwo[i] <- midPointRowTwo + i * plotDimensions$pointXSpacingPx
   }
 
   for(i in 1:maxPoints) {
-    allPointsRowOne[i * 2] <- leftPoints[i]
-    allPointsRowOne[i * 2 + 1] <- rightPoints[i]
+    allPointsRowOne[i * 2] <- leftPointsRowOne[i]
+    allPointsRowOne[i * 2 + 1] <- rightPointsRowOne[i]
+    allPointsRowTwo[i * 2] <- leftPointsRowTwo[i]
+    allPointsRowTwo[i * 2 + 1] <- rightPointsRowTwo[i]
   }
-
-  allPointsRowTwo <- allPointsRowOne + plotDimensions$alternateRowOffsetPx * 2
 
   list(allPointsRowOne, allPointsRowTwo)
 }
@@ -73,9 +81,6 @@ assignXValues <- function(yVals, xValues) {
   uniqueYs <- sort(unique(yVals))
   output <- as.data.frame(yVals)
   output$xVals <- NA
-
-
-
 
   for(i in 1:length(uniqueYs)) {
     if(i %% 2 == 0) {
@@ -118,15 +123,15 @@ testplot <- ggplot(finalOut, aes(xVals, yVals, label = labels)) +
         axis.ticks.y = element_blank(),
         panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
         panel.grid.major.x = element_blank()) +
-geom_vline(xintercept = 379, size = 0.1) +
-geom_vline(xintercept = 1, size = 0.1) +
-geom_vline(xintercept = 759, size = 0.1) +
+#geom_vline(xintercept = 379, size = 0.1) +
+#geom_vline(xintercept = 1, size = 0.1) +
+#geom_vline(xintercept = 759, size = 0.1) +
 geom_text(color = "white", fontface = "bold", size = 0.9, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
 
 
 
 
-ggsave("delme5.png",
+ggsave("delme7.png",
        testplot,
        width = 900,
        height = plotDimensions$plotHeightPx,
