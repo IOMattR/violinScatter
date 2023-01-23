@@ -1,17 +1,13 @@
 
 library(ggplot2)
-sampleData <- read.csv("sampleData.csv")
 
-
-
-
-violinScatter <- function(nominalPlotWidth = 900,
-                          pointSize = 3.3,
-                          initals = FALSE,
-                          filename = "violinPlot.png") {
-
-  ## ADD WRAPPER FUNCTION AND TEST
-}
+# violinScatter <- function(nominalPlotWidth = 900,
+#                          pointSize = 3.3,
+#                          initals = FALSE,
+#                          filename = "violinPlot.png") {
+#
+#  ## ADD WRAPPER FUNCTION AND TEST
+#}
 
 getPlotDimensions <- function(nominalPlotWidth, pointSize) {
   # These plot dimensions in pixels are based on the .png files produced by
@@ -73,50 +69,6 @@ binYValues <- function(yValues, plotDimensions) {
   binnedYValues
 }
 
-
-getXSubset <- function(xValues, numPoints, side = "left") {
-  #This whole function can be removed.
-  x <- xValues[1:numPoints]
-  x
-
-
-
-
-#  if(length(xValues) %% 2 == 0) stop("Even number of possible X Values")
-#  if(numPoints > length(xValues)) stop("More datapoints than available X Values")
-#  if(numPoints <= 0) stop("Points must be greater than 0")
-#  midpoint <- which(xValues == median(xValues))
-#
-#  if(numPoints %% 2 == 0) {
-#     if(side == "left") {
-#        leftSubset <- floor(numPoints / 2)
-#        rightSubset <- floor(numPoints / 2) - 1
-#      } else {
-#        leftSubset <- floor(numPoints / 2) - 1
-#        rightSubset <- floor(numPoints / 2)
-#      }
-#  } else {
-#    leftSubset <- floor(numPoints / 2)
-#    rightSubset <- floor(numPoints / 2)
-#  }
-#  startingX <- midpoint - leftSubset
-#  endingX <- midpoint + rightSubset
-#
-#  returnVals <- xValues[startingX:endingX]
-#
-#  if(length(returnVals) == 1) {
-#    return(returnVals)
-#  } else {
-#    return(sort(returnVals))
-#    #return(sample((xValues[startingX:endingX]), size = length(xValues[startingX:endingX])))
-#  }
-}
-
-
-
-
-
-# this returns a data frame with X and Y values
 assignXValues <- function(yVals, xValues) {
   uniqueYs <- sort(unique(yVals))
   output <- as.data.frame(yVals)
@@ -132,29 +84,17 @@ assignXValues <- function(yVals, xValues) {
       output[output$yVals == uniqueYs[i], "xVals"] <- xValues[[1]][1:length(output[output$yVals == uniqueYs[i], "xVals"])]
     }
   }
-
-  #for(i in 1:length(uniqueYs)) {
-  #  if(i %% 2 == 0) {
-  #     output[output$yVals == uniqueYs[i], "xVals"] <- getXsubset(xVals[[2]],
-  #                                                                points = length(output[output$yVals == uniqueYs[i], "xVals"]),
-  #                                                                side = "left")
-  #  } else {
-  #    output[output$yVals == uniqueYs[i], "xVals"] <- getXsubset(xVals[[1]],
-  #                                                               points = length(output[output$yVals == uniqueYs[i], "xVals"]),
-  #                                                               side = "right")
-
-return(output)
+  return(output)
 }
 
+# Wrapper for running actual data below
 
-# RUN
+sampleData <- read.csv("sampleData.csv")
 
-# Needed data
-yVals <- seq(0, 100, 1)
+yVals <- sampleData$average
 pointSize <- 3.3
-nominalPlotWidth <-900
+nominalPlotWidth <- 900
 
-# run wrapper
 plotDimensions <- getPlotDimensions(nominalPlotWidth, pointSize)
 
 yValsBinned <- binYValues(yVals, plotDimensions)
@@ -178,13 +118,15 @@ testplot <- ggplot(finalOut, aes(xVals, yVals, label = labels)) +
         axis.ticks.y = element_blank(),
         panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
         panel.grid.major.x = element_blank()) +
- # geom_vline(xintercept = 379)
+geom_vline(xintercept = 379, size = 0.1) +
+geom_vline(xintercept = 1, size = 0.1) +
+geom_vline(xintercept = 759, size = 0.1) +
 geom_text(color = "white", fontface = "bold", size = 0.9, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
 
 
 
 
-ggsave("delme3.png",
+ggsave("delme5.png",
        testplot,
        width = 900,
        height = plotDimensions$plotHeightPx,
