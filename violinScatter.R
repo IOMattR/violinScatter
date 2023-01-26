@@ -1,13 +1,68 @@
 
-library(ggplot2)
 
-# violinScatter <- function(nominalPlotWidth = 900,
-#                          pointSize = 3.3,
-#                          initals = FALSE,
-#                          filename = "violinPlot.png") {
-#
-#  ## ADD WRAPPER FUNCTION AND TEST
-#}
+
+# Note - text size is not variable depending on point size.
+# will have to add this to plot dimensions
+
+# Note - need to add randomization of dot order plotting. so
+# every second line is not undeneath.
+
+violinScatter <- function(dataFrame,
+                          dataColumn,
+                          labelColumn = NULL,
+                          nominalPlotWidth = 900,
+                          pointSize = 3.3,
+                          initals = FALSE,
+                          filename = "violinPlot.png") {
+  require(ggplot2)
+
+  if(!dataColumn %in% names(dataFrame)) {
+    stop("dataColumn not found in dataFrame")
+  } else if (!is.numeric(dataFrame[, dataColumn])) {
+    stop("dataColumn is not of mode numeric")
+  } else {
+    yVals <- dataFrame[, dataColumn]
+  }
+
+  if(is.null(labelColumn)) {
+    labels <- rep(NA, length(yVals))
+  } else if (!labelColumn %in% names(dataFrame)) {
+    stop("labelColumn not found in dataFrame")
+  } else if (!is.character(dataFrame[, labelColumn])) {
+    stop("labelColumn is not of mode character")
+  } else {
+    labels <- dataFrame[, labelColumn]
+  }
+
+  plotDimensions <- getPlotDimensions(nominalPlotWidth, pointSize)
+  yValsBinned <- binYValues(yVals, plotDimensions)
+  xValues <- getXValues(plotDimensions)
+  outputData <- assignXValues(yValsBinned, xValues)
+  outputData$labels <- labels
+
+  plot <- ggplot(outputData, aes(xVals, yVals, label = labels)) +
+    ylim(0, 100) +
+    xlim(1, plotDimensions$effectivePlotWidthPx) +
+    geom_point(shape = 21, size = pointSize, color = "white", fill = "#606FAF", stroke = 0.2, position = position_jitter(width = 0.2, height = 0.2, seed = 42)) +
+    theme(panel.background = element_rect(fill = "white", color = "white"),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_text(size = 5, color = "#606FAF"),
+          axis.ticks.y = element_blank(),
+          panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
+          panel.grid.major.x = element_blank()) +
+    geom_text(color = "white", fontface = "bold", size = 0.9, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
+
+  ggsave(filename,
+         plot,
+         width = nominalPlotWidth,
+         height = plotDimensions$plotHeightPx,
+         units = "px")
+
+  message("Plot saved to ", filename)
+}
 
 getPlotDimensions <- function(nominalPlotWidth, pointSize) {
   # These plot dimensions in pixels are based on the .png files produced by
@@ -92,50 +147,7 @@ assignXValues <- function(yVals, xValues) {
   return(output)
 }
 
-# Wrapper for running actual data below
 
-sampleData <- read.csv("sampleData.csv")
-
-yVals <- sampleData$average
-pointSize <- 3.3
-nominalPlotWidth <- 900
-
-plotDimensions <- getPlotDimensions(nominalPlotWidth, pointSize)
-
-yValsBinned <- binYValues(yVals, plotDimensions)
-
-xValues <- getXValues(plotDimensions)
-
-finalOut <- assignXValues(yValsBinned, xValues)
-
-finalOut$labels <- getLabels(dim(finalOut)[[1]])
-
-testplot <- ggplot(finalOut, aes(xVals, yVals, label = labels)) +
-  ylim(0, 100) +
-  xlim(1, 759) +
-  geom_point(shape = 21, size = pointSize, color = "white", fill = "#606FAF", stroke = 0.2, position = position_jitter(width = 0.2, height = 0.2, seed = 42)) +
-  theme(panel.background = element_rect(fill = "white", color = "white"),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y = element_text(size = 5, color = "#606FAF"),
-        axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
-        panel.grid.major.x = element_blank()) +
-#geom_vline(xintercept = 379, size = 0.1) +
-#geom_vline(xintercept = 1, size = 0.1) +
-#geom_vline(xintercept = 759, size = 0.1) +
-geom_text(color = "white", fontface = "bold", size = 0.9, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
-
-
-
-
-ggsave("delme7.png",
-       testplot,
-       width = 900,
-       height = plotDimensions$plotHeightPx,
-       units = "px")
 
 
 
