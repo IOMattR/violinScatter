@@ -1,18 +1,19 @@
 
 
 
-# Note - text size is not variable depending on point size.
+# Note - Y AXIS text size is not variable depending on point size.
 # will have to add this to plot dimensions
 
 # Note - need to add randomization of dot order plotting. so
-# every second line is not undeneath.
+# every second line is not undeneath.Check how we randomize that.
+
+#Address error with geom_text when labels = NULL
 
 violinScatter <- function(dataFrame,
                           dataColumn,
                           labelColumn = NULL,
                           nominalPlotWidth = 900,
                           pointSize = 3.3,
-                          initals = FALSE,
                           filename = "violinPlot.png") {
   require(ggplot2)
 
@@ -53,7 +54,7 @@ violinScatter <- function(dataFrame,
           axis.ticks.y = element_blank(),
           panel.grid.major.y = element_line(color = "#606FAF", size = 0.1),
           panel.grid.major.x = element_blank()) +
-    geom_text(color = "white", fontface = "bold", size = 0.9, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
+    geom_text(color = "white", fontface = "bold", size = plotDimensions$fontSize, position = position_jitter(width = 0.2, height = 0.2, seed = 42))
 
   ggsave(filename,
          plot,
@@ -77,6 +78,7 @@ getPlotDimensions <- function(nominalPlotWidth, pointSize) {
   plotDimensions$pointXSpacingPx      <- floor(plotDimensions$pointDiameterPx * 0.8125)
   plotDimensions$alternateRowOffsetPx <- plotDimensions$pointDiameterPx - plotDimensions$pointXSpacingPx
   plotDimensions$maxYBins             <- floor(plotDimensions$plotHeightPx * 0.043 * 3.3 / pointSize)
+  plotDimensions$fontSize             <- pointSize/3.3 * 0.9
 
   plotDimensions
 }
@@ -147,6 +149,11 @@ assignXValues <- function(yVals, xValues) {
   return(output)
 }
 
+# testing
+
+sampleY <- rnorm(100, 50, 15)
+sampleY <- as.data.frame(sampleY)
+sampleY$words <- rep("AA", 100)
 
 
 
