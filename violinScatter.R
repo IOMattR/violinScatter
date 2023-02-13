@@ -4,9 +4,6 @@
 # Note - Y AXIS text size is not variable depending on point size.
 # will have to add this to plot dimensions
 
-# Note - need to add randomization of dot order plotting. so
-# every second line is not undeneath.Check how we randomize that.
-
 #Address error with geom_text when labels = NULL
 
 violinScatter <- function(dataFrame,
@@ -140,18 +137,26 @@ assignXValues <- function(yVals, xValues) {
   output$xVals <- NA
 
   for(i in 1:length(uniqueYs)) {
+
     if(i %% 2 == 0) {
-      output[output$yVals == uniqueYs[i], "xVals"] <- xValues[[2]][1:length(output[output$yVals == uniqueYs[i], "xVals"])]
+      whichXvalues <- 1
     } else {
-      output[output$yVals == uniqueYs[i], "xVals"] <- xValues[[1]][1:length(output[output$yVals == uniqueYs[i], "xVals"])]
+      whichXvalues <- 2
     }
+
+    numXValuesNeeded <- length(output[output$yVals == uniqueYs[i], "xVals"])
+    xValuesSubset <- xValues[[whichXvalues]][1:numXValuesNeeded]
+    output[output$yVals == uniqueYs[i], "xVals"] <- xValuesSubset
   }
+
+  randomRows <- sample(nrow(output))
+  output <- output[randomRows, ]
   return(output)
 }
 
 # testing
 
-sampleY <- rnorm(100, 50, 15)
+sampleY <- read.csv("sampleData.csv")
 sampleY <- as.data.frame(sampleY)
 sampleY$words <- rep("AA", 100)
 
